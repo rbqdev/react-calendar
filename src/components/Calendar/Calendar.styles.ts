@@ -8,8 +8,8 @@ export const Day = styled.div<{
   border-top: 1px solid;
   border-left: 1px solid;
   border-color: black;
-  min-height: 100px;
-  min-width: 150px;
+  min-height: 120px;
+  min-width: 200px;
   padding: 4px 8px;
   background: ${({ isDayFromCurrentMonth }) =>
     isDayFromCurrentMonth ? "white" : theme.colors.gray[100]};
