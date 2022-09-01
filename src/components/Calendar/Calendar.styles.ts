@@ -8,9 +8,10 @@ export const Day = styled.div<{
   border-top: 1px solid;
   border-left: 1px solid;
   border-color: black;
-  min-height: 120px;
-  min-width: 200px;
+  height: 110px;
+  width: 180px;
   padding: 4px 8px;
+  cursor: pointer;
   background: ${({ isDayFromCurrentMonth }) =>
     isDayFromCurrentMonth ? "white" : theme.colors.gray[100]};
 
@@ -20,6 +21,10 @@ export const Day = styled.div<{
         ? "blue"
         : "black"
       : theme.colors.gray[400]};
+
+  &:hover {
+    background: ${theme.colors.gray[50]};
+  }
 `;
 
 export const DayEventsWrapper = styled.div`
