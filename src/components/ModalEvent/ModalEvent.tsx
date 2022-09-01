@@ -1,49 +1,43 @@
 import {
   Modal,
-  Button,
   ModalOverlay,
   ModalContent,
   ModalHeader,
   ModalCloseButton,
   ModalBody,
-  FormControl,
-  FormLabel,
-  Input,
-  ModalFooter,
   Flex,
   useToast,
+  theme,
+  Badge,
 } from "@chakra-ui/react";
 import { useRef, useState } from "react";
-import { format } from "date-fns";
-import type { Event } from "src/types";
+import { Event } from "src/types";
+import { EventForm, EventList, InputEvent } from "./components";
+import { format, parseISO } from "date-fns";
+
+const DEFAULT_VALUES: Record<InputEvent, any> = {
+  [InputEvent.NAME]: "",
+  [InputEvent.START_TIME]: "",
+  [InputEvent.END_TIME]: "",
+  [InputEvent.COLOR]: theme.colors.blue[500],
+};
 
 type ModalEventProps = {
   isOpen: boolean;
   onClose: () => void;
-  onSaveEvent: (event: Event) => void;
-};
-
-export enum InputEvent {
-  NAME = "name",
-  DATE = "date",
-  START_TIME = "startTime",
-  END_TIME = "endTime",
-}
-
-const DEFAULT_VALUES: Record<InputEvent, any> = {
-  [InputEvent.NAME]: "",
-  [InputEvent.DATE]: format(new Date(), "yyyy-MM-dd"),
-  [InputEvent.START_TIME]: "",
-  [InputEvent.END_TIME]: "",
+  onSaveEvent: (event: Event, eventIndex: number | null) => void;
+  date: string;
 };
 
 export const ModalEvent = ({
   isOpen,
   onClose,
   onSaveEvent,
+  date,
 }: ModalEventProps) => {
   const initialRef = useRef(null);
   const [values, setValues] = useState(DEFAULT_VALUES);
+  const [innerEventIndex, setInnerEventIndex] = useState<number | null>(null);
   const toast = useToast();
 
   const formIsInvalid = () => {
@@ -68,6 +62,16 @@ export const ModalEvent = ({
     setValues({ ...values, [e.target.name]: e.target.value });
   };
 
+  const handleEditEvent = (event: Event, eventIndex: number) => {
+    setValues({ ...event });
+    setInnerEventIndex(eventIndex);
+  };
+
+  const handleModalClose = () => {
+    setValues({ ...DEFAULT_VALUES });
+    onClose();
+  };
+
   const handleSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault();
 
@@ -75,9 +79,14 @@ export const ModalEvent = ({
       return;
     }
 
-    onSaveEvent(values);
+    onSaveEvent({ ...values, date }, innerEventIndex);
     setValues({ ...DEFAULT_VALUES });
-    onClose();
+    setInnerEventIndex(null);
+    toast({
+      title: `Event saved successfully!`,
+      status: "success",
+      isClosable: true,
+    });
   };
 
   return (
@@ -85,77 +94,32 @@ export const ModalEvent = ({
       <Modal
         initialFocusRef={initialRef}
         isOpen={isOpen}
-        onClose={onClose}
+        onClose={handleModalClose}
         isCentered
+        size="3xl"
       >
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Add event</ModalHeader>
+          <ModalHeader>
+            <Badge fontSize="md" size="lg">
+              {date ? format(parseISO(date), "MMMM dd/yy") : ""}
+            </Badge>
+          </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <FormControl>
-              <FormLabel>Event name</FormLabel>
-              <Input
+            <Flex gap={6} mb={4}>
+              <EventForm
+                values={values}
+                eventIndex={innerEventIndex}
+                handleChange={handleChange}
+                handleSubmit={handleSubmit}
+                formIsInvalid={formIsInvalid}
+                onClose={onClose}
                 ref={initialRef}
-                placeholder="Event name"
-                maxLength={30}
-                name={InputEvent.NAME}
-                value={values[InputEvent.NAME]}
-                onChange={handleChange}
               />
-            </FormControl>
-
-            <FormControl mt={4}>
-              <FormLabel>Date</FormLabel>
-              <Input
-                placeholder="Select Date and Time"
-                size="md"
-                type="date"
-                name={InputEvent.DATE}
-                defaultValue={values[InputEvent.DATE]}
-                onChange={handleChange}
-              />
-            </FormControl>
-
-            <Flex gap={4}>
-              <FormControl mt={4}>
-                <FormLabel>Start Time</FormLabel>
-                <Input
-                  placeholder="Start Time"
-                  size="md"
-                  type="time"
-                  name={InputEvent.START_TIME}
-                  value={values[InputEvent.START_TIME]}
-                  onChange={handleChange}
-                />
-              </FormControl>
-
-              <FormControl mt={4}>
-                <FormLabel>End Time</FormLabel>
-                <Input
-                  placeholder="End Time"
-                  size="md"
-                  type="time"
-                  name={InputEvent.END_TIME}
-                  value={values[InputEvent.END_TIME]}
-                  onChange={handleChange}
-                />
-              </FormControl>
+              <EventList date={date} onEditEvent={handleEditEvent} />
             </Flex>
           </ModalBody>
-
-          <ModalFooter>
-            <Button
-              colorScheme="blue"
-              mr={3}
-              type="button"
-              onClick={handleSubmit}
-              disabled={formIsInvalid()}
-            >
-              Save
-            </Button>
-            <Button onClick={onClose}>Cancel</Button>
-          </ModalFooter>
         </ModalContent>
       </Modal>
     </>
