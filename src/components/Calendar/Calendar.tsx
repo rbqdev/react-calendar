@@ -20,7 +20,8 @@ import {
   isToday,
   getWeeksInMonth,
 } from "date-fns";
-import { MONTHS, EVENTS, addEvent } from "./utils";
+import { MONTHS } from "./utils";
+import { EVENTS, addEvent, updateEvent } from "src/events";
 import { ModalEvent } from "src/components";
 import type { Event } from "src/types";
 
@@ -74,6 +75,7 @@ const getDaysMonth = (): Day[] => {
 
 export const Calendar = () => {
   const [days, setDays] = useState([...getDaysMonth()]);
+  const [selectedDate, setSelectedDate] = useState("");
 
   const {
     onOpen: onModalOpen,
@@ -96,14 +98,22 @@ export const Calendar = () => {
     setDays([...getDaysMonth()]);
   };
 
-  const handleSaveEvent = (event: Event) => {
-    addEvent(event);
-    setDays([...getDaysMonth()]);
+  const handleSaveEvent = (event: Event, eventIndex: number | null) => {
+    if (typeof eventIndex === "number") {
+      updateEvent(event, eventIndex);
+    } else {
+      addEvent(event);
+    }
+  };
+
+  const handleModalOpen = (date: string) => {
+    setSelectedDate(date);
+    onModalOpen();
   };
 
   return (
     <Flex flexDirection="column" h="750px">
-      <Flex flexDirection="column" mb="12px">
+      <Flex flexDirection="column" mb="12px" gap={4}>
         <Text fontWeight="bold" fontSize="32px">
           {fullCalendarTitle}
         </Text>
@@ -133,11 +143,7 @@ export const Calendar = () => {
             </Button>
           </Flex>
 
-          <Box>
-            <Button type="button" colorScheme="blue" onClick={onModalOpen}>
-              Add Event
-            </Button>
-          </Box>
+          <Text color="gray.500">*Click on each day for add a event</Text>
         </Flex>
       </Flex>
 
@@ -182,13 +188,14 @@ export const Calendar = () => {
               key={`day-${index}`}
               isDayFromCurrentMonth={isDayFromCurrentMonth}
               isWeekendInCurrentMonth={isWeekendInCurrentMonth}
-              onClick={onModalOpen}
+              onClick={() => handleModalOpen(date)}
             >
               <Text
+                fontSize={14}
                 fontWeight="bold"
                 borderRadius="100%"
-                width="25px"
-                height="25px"
+                width="20px"
+                height="20px"
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
@@ -198,16 +205,18 @@ export const Calendar = () => {
                 {day}
               </Text>
 
-              <Flex flexDirection="column" mt={2} gap={2}>
+              <Flex flexDirection="column" mt={2} gap={1}>
                 {EVENTS[date]
                   ? EVENTS[date]
                       .slice(0, 2)
-                      .map(({ name, startTime, endTime }, index) => (
-                        <Flex
+                      .map(({ name, startTime, color }, index) => (
+                        <Badge
                           key={`event-${index}`}
                           display="flex"
                           alignItems="center"
                           justifyContent="space-between"
+                          textTransform="lowercase"
+                          color={color}
                         >
                           <Text
                             fontWeight="bold"
@@ -218,9 +227,9 @@ export const Calendar = () => {
                             fontSize={12}
                           >
                             {name}
-                          </Text>{" "}
-                          <Text fontSize={12}>{startTime}</Text>
-                        </Flex>
+                          </Text>
+                          <Text fontSize={10}>{startTime}</Text>
+                        </Badge>
                       ))
                   : null}
                 <Box>
@@ -240,13 +249,13 @@ export const Calendar = () => {
             </Styles.Day>
           )
         )}
+        <ModalEvent
+          isOpen={onModalIsOpen}
+          onClose={onModalClose}
+          onSaveEvent={handleSaveEvent}
+          date={selectedDate}
+        />
       </SimpleGrid>
-
-      <ModalEvent
-        isOpen={onModalIsOpen}
-        onClose={onModalClose}
-        onSaveEvent={handleSaveEvent}
-      />
     </Flex>
   );
 };
