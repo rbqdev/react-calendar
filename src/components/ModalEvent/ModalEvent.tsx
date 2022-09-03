@@ -8,7 +8,7 @@ import {
   Flex,
   useToast,
   theme,
-  Badge,
+  Heading,
 } from "@chakra-ui/react";
 import { useRef, useState } from "react";
 import { Event } from "src/types";
@@ -20,6 +20,7 @@ const DEFAULT_VALUES: Record<InputEvent, any> = {
   [InputEvent.START_TIME]: "",
   [InputEvent.END_TIME]: "",
   [InputEvent.COLOR]: theme.colors.blue[500],
+  [InputEvent.CITY]: "",
 };
 
 type ModalEventProps = {
@@ -58,8 +59,11 @@ export const ModalEvent = ({
     return true;
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setValues({ ...values, [e.target.name]: e.target.value });
+    console.log({ values });
   };
 
   const handleEditEvent = (event: Event, eventIndex: number) => {
@@ -96,14 +100,14 @@ export const ModalEvent = ({
         isOpen={isOpen}
         onClose={handleModalClose}
         isCentered
-        size="3xl"
+        size="4xl"
       >
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>
-            <Badge fontSize="md" size="lg">
+          <ModalHeader display="flex" gap={4} alignItems="center" pr={16}>
+            <Heading size="lg" flexGrow={1}>
               {date ? format(parseISO(date), "MMMM dd/yy") : ""}
-            </Badge>
+            </Heading>
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
