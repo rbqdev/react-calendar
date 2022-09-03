@@ -4,4 +4,5 @@ export type Event = {
   startTime: string;
   endTime: string;
   color: string;
+  city: string;
 };
