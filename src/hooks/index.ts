@@ -1,1 +1,1 @@
-export * from "./forceUpdate";
+export * from "./useForceUpdate";
