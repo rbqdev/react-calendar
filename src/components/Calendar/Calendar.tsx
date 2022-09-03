@@ -73,6 +73,8 @@ const getDaysMonth = (): Day[] => {
   return daysMonth;
 };
 
+const NUMBER_OF_EVENTS_VISIBLE = 2;
+
 export const Calendar = () => {
   const [days, setDays] = useState([...getDaysMonth()]);
   const [selectedDate, setSelectedDate] = useState("");
@@ -143,7 +145,9 @@ export const Calendar = () => {
             </Button>
           </Flex>
 
-          <Text color="gray.500">*Click on each day for add a event</Text>
+          <Text color="gray.500">
+            *Click on each day for add a event or see the weather
+          </Text>
         </Flex>
       </Flex>
 
@@ -208,7 +212,7 @@ export const Calendar = () => {
               <Flex flexDirection="column" mt={2} gap={1}>
                 {EVENTS[date]
                   ? EVENTS[date]
-                      .slice(0, 2)
+                      .slice(0, NUMBER_OF_EVENTS_VISIBLE)
                       .map(({ name, startTime, color }, index) => (
                         <Badge
                           key={`event-${index}`}
@@ -234,7 +238,7 @@ export const Calendar = () => {
                   : null}
                 <Box>
                   {EVENTS[date]
-                    ? EVENTS[date].length > 2 && (
+                    ? EVENTS[date].length > NUMBER_OF_EVENTS_VISIBLE && (
                         <Text display="flex" gap={2} fontSize={10}>
                           <span>+ {EVENTS[date].length - 2}</span>
                           <span>
