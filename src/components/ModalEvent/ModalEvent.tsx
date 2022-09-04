@@ -63,7 +63,6 @@ export const ModalEvent = ({
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     setValues({ ...values, [e.target.name]: e.target.value });
-    console.log({ values });
   };
 
   const handleEditEvent = (event: Event, eventIndex: number) => {
